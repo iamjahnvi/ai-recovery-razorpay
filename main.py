@@ -75,6 +75,24 @@ payment = {
     "subscription" : random.choice(is_subscription)
 }
 
+def recovery_policy(payment: dict) -> dict:
+
+    """
+    Deterministic rule-based recovery decision.
+    Returns a dict: {action,reason,retry_after_minutes}
+    Actions: "retry" | "ask_customer" | "stop"
+
+    """
+
+    failure_reason = payment["failure_reason"]
+    attempts = payment["previous_attempts"]
+    minutes = payment["minutes_since_failure"]
+    tier= payment["customer_tier"]
+    subscription= payment["subscription"]
+
+
+
+
 def recovery_policy(payment):
     if payment["previous_attempts"] >= 3:
         return "ask_customer"
