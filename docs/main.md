@@ -28,3 +28,11 @@ minutes_since_failure = 10 />
 
 4. LLM gives us recommendation
 
+# Question is why only these five taken into consideration?
+# Becuase they impact the recovery process as of now
+
+    failure_reason = payment["failure_reason"]
+    attempts = payment["previous_attempts"]
+    minutes = payment["minutes_since_failure"]
+    tier= payment["customer_tier"]
+    subscription= payment["subscription"]
