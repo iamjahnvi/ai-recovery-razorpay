@@ -12,8 +12,8 @@ client = OpenAI(
 )
 
 possible_failure_reasons = [
-    "incorrect_CVC"
-    "mistyped_card_number",
+    "incorrect_CVC",
+    "mismatched_card_number",
     "expired_card",
     "insufficient_funds" ,
     "processing_error" ,
@@ -46,8 +46,8 @@ possible_card_brand = [
 ]
 
 possible_payment_method_type = [   
-    "Credit Card"
-    "Debit Card"
+    "Credit Card" ,
+    "Debit Card",
     "UPI" ,
     "Net Banking" ,
     "Digital Wallet" ,
@@ -90,23 +90,72 @@ def recovery_policy(payment: dict) -> dict:
     tier= payment["customer_tier"]
     subscription= payment["subscription"]
 
+    non_retryable_reasons = {"incorrect_CVC" , "mismatched_card_number", "expired_card"}
+    if failure_reason in non_retryable_reasons:
+        return {
+            "action": "ask_customer" ,
+            "reason": f"{failure_reason} cannot be fixed   by retrying - needs updated card details" ,
+            "retry_after_minutes": 0,
+        }
 
+    if attempts >= 5:
+        return {
+            "action" : "stop" ,
+            "reason" : "Maximun retry attempts exceeded - escalate to write-off/manual review",
+            "retry_after_minutes": 0,
+        }
 
+    if attempts >=3:
+        return{
+            "action": "ask_customer",
+            "reason":"Multiple automated retries failed-needs customer intervention",
+            "retry_after_minutes":0,
+        }
 
-def recovery_policy(payment):
-    if payment["previous_attempts"] >= 3:
-        return "ask_customer"
+    if failure_reason == "insufficient_funds":
+        if tier in ("vip", "vvip", "enterprise"):
+            return {
+                "action": "ask_customer",
+                "reason": "High-value customer with insufficient funds — prefer manual outreach over silent retry",
+                "retry_after_minutes": 0,
+            }
+        return {
+            "action": "retry",
+            "reason": "Insufficient funds — retry after a cooldown to allow balance top-up (e.g. payday cycle)",
+            "retry_after_minutes": 1440,  # ~24 hours
+        }
+    
+    if failure_reason in ("bank_declined", "processing_error"):
+        if minutes <= 5:
+            return {
+                "action": "retry",
+                "reason": "Transient failure detected very recently — quick retry likely to succeed",
+                "retry_after_minutes": 5,
+            }
+        if minutes <= 30:
+            return {
+                "action": "retry",
+                "reason": "Transient failure — retry with short backoff",
+                "retry_after_minutes": 15,
+            }
+        return {
+            "action": "ask_customer",
+            "reason": "Transient failure persisting beyond 30 minutes — likely not self-resolving",
+            "retry_after_minutes": 0,
+        }
 
-    if payment["failure_reason"] == "insufficient_funds":
-        return "ask_customer"
+    if subscription and attempts < 3:
+        return {
+            "action": "retry",
+            "reason": "Active subscription — retry to avoid involuntary churn before asking customer",
+            "retry_after_minutes": 60,
+        }
 
-    if payment["failure_reason"] == "bank_declined":
-        return "retry"
-
-    if payment["minutes_since_failure"] <= 5:
-        return "retry"
-
-    return "stop"
+    return {
+        "action": "stop",
+        "reason": "No matching recovery rule — defaulting to stop for manual review",
+        "retry_after_minutes": 0,
+    }
 
 response = client.chat.completions.create(
     model="openai/gpt-oss-20b" , 
