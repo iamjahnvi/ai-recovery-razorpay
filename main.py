@@ -63,7 +63,6 @@ possible_payment_method_type = [
 
 is_subscription = [True,False]
 
-
 payment = {
     "amount" : random.randint(1000,10000),
     "failure_reason" : random.choice(possible_failure_reasons) ,
@@ -158,41 +157,44 @@ def recovery_policy(payment: dict) -> dict:
         "retry_after_minutes": 0,
     }
 
-response = client.chat.completions.create(
-    model="openai/gpt-oss-20b" , 
-    messages=[
-        {"role":"system" , "content" : """ 
-        You are a payment recovery assistant.
-        For every failed payment, decide the best recovery action.
 
-        Possible actions :
-        -retry
-        -ask_customer
-        -stop
+final_decision = recovery_policy(payment)
 
-        Return only valid JSON.
-        Do not include markdown , explanations or code fences.
+if final_decision["action"] == "ask_customer":
+    message_response = client.chat.completions.create(
+        model="openai/gpt-oss-20b",
+        messages=[
+            {
+                "role":"system",
+                "content":
+                    """
+                    You are payment recovery assistant.
+                
+                    Write a short, polite customer-facing  messgae explaining that their payment could not be completed.
+                
+                    Do not mention internal rules,retry attempts,AI or technical details.
+                
+                    Keep it under 40 words.
+                    """
+            },
+            {
+                "role":"user",
+                "content":f"""
+                Payment: {payment}
+                Recovery reason: {final_decision["reason"]}
+                """
+            }
+        ]
+    )
+    customer_message = message_response.choices[0].message.content
 
-        The JSON must have exactly these keys:
-        {
-           "action": "retry | ask_customer | stop",
-           "reason": "short explaination",
-           "retry_after_minutes":0
-        }
-        """ },
+    print("/nCUSTOMER MESSAGE : ")
+    print(customer_message)
 
-        {"role":"user" , "content": f"Analyse this failed payment and choose the best recovery action: {payment}"}
-    ]
-)
-decision = json.loads(response.choices[0].message.content.lower())
+print("PYTHON DECISION : ")
 
-print("AI DECISION : ")
-print(decision)
+print("ACTION:" , final_decision["action"])
+print("REASON:", final_decision["reason"])
+print("RETRY AFTER:", final_decision["retry_after_minutes"],"minutes")
 
-print("AI DECISION:")
-print(decision)
-
-print("AI ACTION:", decision["action"])
-print("AI REASON:", decision["reason"])
-print("RETRY AFTER:", decision["retry_after_minutes"], "minutes")
 
