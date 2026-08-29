@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import random 
+import json
 
 load_dotenv()
 # python, go inside .env and load the secrets.
@@ -169,31 +170,29 @@ response = client.chat.completions.create(
         -ask_customer
         -stop
 
-        Return your answer in this format :
-        action : <action> 
-        reason : <short answer>
-        retry_after_minutes : <number, use 0 if not applicable>
+        Return only valid JSON.
+        Do not include markdown , explanations or code fences.
+
+        The JSON must have exactly these keys:
+        {
+           "action": "retry | ask_customer | stop",
+           "reason": "short explaination",
+           "retry_after_minutes":0
+        }
         """ },
 
         {"role":"user" , "content": f"Analyse this failed payment and choose the best recovery action: {payment}"}
     ]
 )
-decision = response.choices[0].message.content.lower()
+decision = json.loads(response.choices[0].message.content.lower())
 
 print("AI DECISION : ")
 print(decision)
 
-if "ask_customer" in decision :
-    print("Recovery system will contact the customer.")
+print("AI DECISION:")
+print(decision)
 
-elif "stop" in decision :
-    print("Recovery system will stop further attempts.")
-
-elif "retry" in decision :
-    print("Recovery system will return the payment")
-
-else :
-    print("Unknown action.")
-
-print("Final action :", recovery_policy(payment))
+print("AI ACTION:", decision["action"])
+print("AI REASON:", decision["reason"])
+print("RETRY AFTER:", decision["retry_after_minutes"], "minutes")
 
