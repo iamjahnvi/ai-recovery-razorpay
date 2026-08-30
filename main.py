@@ -100,30 +100,26 @@ def recovery_policy(payment: dict) -> dict:
     if failure_reason in non_retryable_reasons:
         return {
             "action": "ask_customer" ,
-            "reason": f"{failure_reason} cannot be fixed   by retrying - needs updated card details" ,
-            "retry_after_minutes": 0,
+            "reason": f"{failure_reason} cannot be fixed   by retrying - needs updated card details , Do not retry!" ,
         }
 
     if attempts >= 5:
         return {
             "action" : "stop" ,
-            "reason" : "Maximun retry attempts exceeded - escalate to write-off/manual review",
-            "retry_after_minutes": 0,
+            "reason" : "Maximun retry attempts exceeded - escalate to write-off/manual review. Do not retry!",
         }
 
     if attempts >=3:
         return{
             "action": "ask_customer",
-            "reason":"Multiple automated retries failed-needs customer intervention",
-            "retry_after_minutes":0,
+            "reason":"Multiple automated retries failed-needs customer intervention.",
         }
 
     if failure_reason == "insufficient_funds":
         if tier in ("vip", "vvip", "enterprise"):
             return {
                 "action": "ask_customer",
-                "reason": "High-value customer with insufficient funds — prefer manual outreach over silent retry",
-                "retry_after_minutes": 0,
+                "reason": "High-value customer with insufficient funds — prefer manual outreach over silent retry.",
             }
         return {
             "action": "retry",
@@ -146,8 +142,7 @@ def recovery_policy(payment: dict) -> dict:
             }
         return {
             "action": "ask_customer",
-            "reason": "Transient failure persisting beyond 30 minutes — likely not self-resolving",
-            "retry_after_minutes": 0,
+            "reason": "Transient failure persisting beyond 30 minutes — likely not self-resolving.",
         }
 
     if subscription and attempts < 3:
@@ -160,12 +155,10 @@ def recovery_policy(payment: dict) -> dict:
     return {
         "action": "stop",
         "reason": "No matching recovery rule — defaulting to stop for manual review",
-        "retry_after_minutes": 0,
     }
 
 def stimulate_retry(payment):
     success = random.choice([True,False])
-
     if success :
         return "Payment recovered successfully!"
     else :
@@ -207,7 +200,8 @@ if final_decision["action"] == "retry":
             "attempt":payment["previous_attempts"]  ,
             "action":final_decision["action"],
             "reason":final_decision["reason"] ,
-            "payment_id":payment["payment_id"]
+            "payment_id":payment["payment_id"],
+            "result":payment["status"]
         })
 
         print("\nNEW DECISION:")
@@ -230,7 +224,7 @@ if final_decision["action"] == "ask_customer":
                 
                     Do not mention internal rules,retry attempts,AI or technical details.
                 
-                    Keep it under 40 words.
+                    Keep it under 100 words.
                     """
             },
             {
@@ -247,12 +241,20 @@ if final_decision["action"] == "ask_customer":
     print("\nCUSTOMER MESSAGE : ")
     print(customer_message)
 
+
+current_payment_history = [
+    event
+    for event in recovery_history
+    if event["payment_id"] == payment["payment_id"]
+]
+
 print("\nRECOVERY HISTORY")
 
-for event in recovery_history:
+for event in current_payment_history:
     print("ATTEMPT:" , event["attempt"])
     print("ACTION:" , event["action"])
     print("REASON:" , event["reason"])
 
 with open("recovery_history.json" , "w") as file:
     json.dump(recovery_history,file,indent=4,sort_keys="True")
+
