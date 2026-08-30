@@ -73,9 +73,10 @@ payment = {
     "card_brand" : random.choice(possible_card_brand) ,
     "payment_method" : random.choice(possible_payment_method_type) ,
     "subscription" : random.choice(is_subscription) ,
-    "status":"failed"
+    "status":"failed" ,
 }
 
+recovery_history = []
 
 def recovery_policy(payment: dict) -> dict:
 
@@ -171,11 +172,15 @@ def stimulate_retry(payment):
 final_decision = recovery_policy(payment)
 
 print("PYTHON DECISION : ")
-
 print("ACTION:" , final_decision["action"])
 print("REASON:", final_decision["reason"])
 print("RETRY AFTER:", final_decision["retry_after_minutes"],"minutes")
 
+recovery_history.append({
+    "attempt":payment["previous_attempts"] ,
+    "action":final_decision["action"],
+    "reason":final_decision["reason"]
+})
 
 if final_decision["action"] == "retry":
     print("\nRETRY SCHEDULED")
@@ -229,5 +234,10 @@ if final_decision["action"] == "ask_customer":
     print("\nCUSTOMER MESSAGE : ")
     print(customer_message)
 
+print("\nRECOVERY HISTORY")
 
-
+for event in recovery_history:
+    print("TOTAL ATTEMPTS:" , event["attempt"])
+    print("ACTION:" , event["action"])
+    print("REASON:" , event["reason"])
+ 
