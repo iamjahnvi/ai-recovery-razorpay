@@ -2,6 +2,7 @@ from dotenv import load_dotenv
 import os
 import random 
 import json
+import uuid
 
 load_dotenv()
 # python, go inside .env and load the secrets.
@@ -74,6 +75,7 @@ payment = {
     "payment_method" : random.choice(possible_payment_method_type) ,
     "subscription" : random.choice(is_subscription) ,
     "status":"failed" ,
+    "payment_id":str(uuid.uuid4())
 }
 
 with open("recovery_history.json" , "r") as file:
@@ -178,6 +180,7 @@ print("REASON:", final_decision["reason"])
 print("RETRY AFTER:", final_decision["retry_after_minutes"],"minutes")
 
 recovery_history.append({
+    "payment_id":payment["payment_id"],
     "attempt":payment["previous_attempts"] ,
     "action":final_decision["action"],
     "reason":final_decision["reason"]
@@ -203,7 +206,8 @@ if final_decision["action"] == "retry":
         recovery_history.append({
             "attempt":payment["previous_attempts"]  ,
             "action":final_decision["action"],
-            "reason":final_decision["reason"]
+            "reason":final_decision["reason"] ,
+            "payment_id":payment["payment_id"]
         })
 
         print("\nNEW DECISION:")
@@ -249,3 +253,6 @@ for event in recovery_history:
     print("ATTEMPT:" , event["attempt"])
     print("ACTION:" , event["action"])
     print("REASON:" , event["reason"])
+
+with open("recovery_history.json" , "w") as file:
+    json.dump(recovery_history,file,indent=4,sort_keys="True")
