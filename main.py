@@ -66,14 +66,16 @@ is_subscription = [True,False]
 payment = {
     "amount" : random.randint(1000,10000),
     "failure_reason" : random.choice(possible_failure_reasons) ,
-    "previous_attempts" : random.randint(1,10),
-    "minutes_since_failure" : random.randint(1,60) ,
+    "previous_attempts" : random.randint(0,2),
+    "minutes_since_failure" : random.randint(1,5) ,
     "currency" : random.choice(possible_currency) ,
     "customer_tier" : random.choice(possible_customer_tier) ,
     "card_brand" : random.choice(possible_card_brand) ,
     "payment_method" : random.choice(possible_payment_method_type) ,
-    "subscription" : random.choice(is_subscription)
+    "subscription" : random.choice(is_subscription) ,
+    "status":"failed"
 }
+
 
 def recovery_policy(payment: dict) -> dict:
 
@@ -157,8 +159,44 @@ def recovery_policy(payment: dict) -> dict:
         "retry_after_minutes": 0,
     }
 
+def stimulate_retry(payment):
+    success = random.choice([True,False])
+
+    if success :
+        return "Payment recovered successfully!"
+    else :
+        return "Retry failed."
+
 
 final_decision = recovery_policy(payment)
+
+print("PYTHON DECISION : ")
+
+print("ACTION:" , final_decision["action"])
+print("REASON:", final_decision["reason"])
+print("RETRY AFTER:", final_decision["retry_after_minutes"],"minutes")
+
+
+if final_decision["action"] == "retry":
+    print("\nRETRY SCHEDULED")
+    print("Retrying after:", final_decision["retry_after_minutes"] , "minutes")
+
+    retry_result = stimulate_retry(payment)
+    print("RETRY RESULT : ", retry_result)
+
+    if retry_result == "Payment recovered successfully!":
+        payment["status"]="recovered"
+        print("PAYMENT STATUS : RECOVERED")
+
+    else :
+        payment["previous_attempts"]+=1
+        print("ATTEMPTS NOW:" , payment["previous_attempts"])
+
+        print("\nNEW DECISION:")
+        print("ACTION:", final_decision["action"])
+        print("REASON:", final_decision["reason"])
+        print("RETRY AFTER:", final_decision["retry_after_minutes"], "minutes")
+
 
 if final_decision["action"] == "ask_customer":
     message_response = client.chat.completions.create(
@@ -188,13 +226,8 @@ if final_decision["action"] == "ask_customer":
     )
     customer_message = message_response.choices[0].message.content
 
-    print("/nCUSTOMER MESSAGE : ")
+    print("\nCUSTOMER MESSAGE : ")
     print(customer_message)
 
-print("PYTHON DECISION : ")
-
-print("ACTION:" , final_decision["action"])
-print("REASON:", final_decision["reason"])
-print("RETRY AFTER:", final_decision["retry_after_minutes"],"minutes")
 
 
