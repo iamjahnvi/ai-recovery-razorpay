@@ -76,7 +76,8 @@ payment = {
     "status":"failed" ,
 }
 
-recovery_history = []
+with open("recovery_history.json" , "r") as file:
+    recovery_history = json.load(file)
 
 def recovery_policy(payment: dict) -> dict:
 
@@ -197,6 +198,14 @@ if final_decision["action"] == "retry":
         payment["previous_attempts"]+=1
         print("ATTEMPTS NOW:" , payment["previous_attempts"])
 
+        final_decision = recovery_policy(payment)
+
+        recovery_history.append({
+            "attempt":payment["previous_attempts"]  ,
+            "action":final_decision["action"],
+            "reason":final_decision["reason"]
+        })
+
         print("\nNEW DECISION:")
         print("ACTION:", final_decision["action"])
         print("REASON:", final_decision["reason"])
@@ -237,7 +246,6 @@ if final_decision["action"] == "ask_customer":
 print("\nRECOVERY HISTORY")
 
 for event in recovery_history:
-    print("TOTAL ATTEMPTS:" , event["attempt"])
+    print("ATTEMPT:" , event["attempt"])
     print("ACTION:" , event["action"])
     print("REASON:" , event["reason"])
- 
