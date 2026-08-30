@@ -36,3 +36,15 @@ minutes_since_failure = 10 />
     minutes = payment["minutes_since_failure"]
     tier= payment["customer_tier"]
     subscription= payment["subscription"]
+
+uuid - universally unique identifiers(uuids)
+-python built in uuid module
+-standardized 128 bit numbers that are practically generated to be unique across space and time.
+
+-uuid.uuid4 is a function in python's uuid module that generates a version 4 UUID using random numbers.
+
+-indent=4 : it adds human readable formatting to the saved json file by identing nested elements by 4 spaces .
+without , json.dump() saves all the data into a single compact hard-to-read file
+
+-sort_keys = "True" means the key value pair inside json will be stored in a sorted format.
+
