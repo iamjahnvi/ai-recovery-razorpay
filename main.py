@@ -55,33 +55,20 @@ possible_payment_method_type = [
 
 is_subscription = [True, False]
 
-# payment = {
-#     "amount": random.randint(1000, 10000),
-#     "failure_reason": random.choice(possible_failure_reasons),
-#     "previous_attempts": random.randint(0, 2),
-#     "minutes_since_failure": random.randint(1, 5),
-#     "currency": random.choice(possible_currency),
-#     "customer_tier": random.choice(possible_customer_tier),
-#     "card_brand": random.choice(possible_card_brand),
-#     "payment_method": random.choice(possible_payment_method_type),
-#     "subscription": random.choice(is_subscription),
-#     "status": "failed",
-#     "payment_id": str(uuid.uuid4()),
-# }
-
 payment = {
-    "amount": 5000,
-    "failure_reason": "unknown_reason",
-    "previous_attempts": 3,
-    "minutes_since_failure": 2,
-    "currency": "USD",
-    "customer_tier": "vip",
-    "card_brand": "Visa",
-    "payment_method": "Credit Card",
-    "subscription": True,
+    "amount": random.randint(1000, 10000),
+    "failure_reason": random.choice(possible_failure_reasons),
+    "previous_attempts": random.randint(0, 2),
+    "minutes_since_failure": random.randint(1, 5),
+    "currency": random.choice(possible_currency),
+    "customer_tier": random.choice(possible_customer_tier),
+    "card_brand": random.choice(possible_card_brand),
+    "payment_method": random.choice(possible_payment_method_type),
+    "subscription": random.choice(is_subscription),
     "status": "failed",
-    "payment_id": "test-021"
+    "payment_id": str(uuid.uuid4()),
 }
+
 
 with open("recovery_history.json", "r") as file:
     recovery_history = json.load(file)
