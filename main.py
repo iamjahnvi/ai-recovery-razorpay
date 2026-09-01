@@ -76,13 +76,28 @@ with open("recovery_history.json", "r") as file:
 decision = recovery_policy(payment)
 
 if decision["action"] == "retry":
+
+    print("\nRETRY SCHEDULED")
+    print("Retry after:", decision["retry_after_minutes"], "minutes")
+
     result = stimulate_retry(payment)
+
+    print("RETRY RESULT:", result["reason"])
+
+    if result["success"]:
+        payment["status"] = "recovered"
+        print("PAYMENT STATUS: RECOVERED")
+
+    else:
+        payment["previous_attempts"] += 1
+        print("ATTEMPTS NOW:", payment["previous_attempts"])
+
     recovery_history.append({
-        "attempt": payment["previous_attempts"],
-        "action": decision["action"],
-        "reason": decision["reason"],
         "payment_id": payment["payment_id"],
-        "result": payment["status"]
+        "attempt": payment["previous_attempts"],
+        "action": "retry",
+        "reason": decision["reason"],
+        "result": result["result"]
     })
 
 print("\nNEW DECISION:")
@@ -119,14 +134,6 @@ current_payment_history = [
     event for event in recovery_history if event["payment_id"] == payment["payment_id"]
 ]
 
-recovery_history.append({
-    "action": decision["action"],
-    "attempt": payment["previous_attempts"],
-    "payment_id": payment["payment_id"],
-    "result": decision["reason"],
-    "reason": decision["reason"]
-})
-
 print("\nRECOVERY HISTORY")
 for event in current_payment_history:
     print("ATTEMPT:", event["attempt"])
@@ -138,11 +145,3 @@ for event in current_payment_history:
 with open("recovery_history.json", "w") as file:
     json.dump(recovery_history, file, indent=4, sort_keys="True")
 
-retry_result = stimulate_retry(payment)
-
-if retry_result["success"]:
-    payment["status"] = "recovered"
-else :
-    payment["previous_attempts"] += 1 
-
-    
