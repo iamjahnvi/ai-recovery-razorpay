@@ -5,5 +5,12 @@
         "payment_id": "7e76abce-e9eb-492c-bc98-cc627f5a3dae",
         "reason": "Transient failure detected very recently \u2014 quick retry likely to succeed",
         "result": "recovered"
+    },
+    {
+        "action": "retry",
+        "attempt": 0,
+        "payment_id": "547d0e48-c399-4378-a48e-4d98b5f05179",
+        "reason": "Transient failure detected very recently \u2014 quick retry likely to succeed",
+        "result": "recovered"
     }
 ]
