@@ -1,5 +1,7 @@
 # This file's only job is: Razorpay's format → our agent's format
 
+from datetime import datetime, timezone
+
 def normalize_payment(razorpay_payment: dict) -> dict:
 
     error_description = (
@@ -31,6 +33,21 @@ def normalize_payment(razorpay_payment: dict) -> dict:
     else:
         failure_reason = None
 
+    created_at = razorpay_payment.get("created_at")
+
+    if created_at:
+        created_time = datetime.fromtimestamp(
+            created_at,
+            tz=timezone.utc
+        )
+
+        minutes_since_failure = int(
+            (datetime.now(timezone.utc) - created_time).total_seconds() / 60
+        )
+
+    else :
+        minutes_since_failure = 0   
+
     return {
         "payment_id": razorpay_payment["id"],
         "amount": razorpay_payment["amount"],
@@ -41,7 +58,7 @@ def normalize_payment(razorpay_payment: dict) -> dict:
 
         # These aren't supplied by this API response yet.
         "previous_attempts": 0,
-        "minutes_since_failure": 0,
+        "minutes_since_failure": minutes_since_failure,
 
         # Temporary until we get customer/subscription data
         "customer_tier": "free",
