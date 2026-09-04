@@ -1,10 +1,12 @@
 from dotenv import load_dotenv
 import os
-import random
 import json
-import uuid
+
 from recovery_policy import recovery_policy
 from recovery_stimulator import stimulate_retry
+from payment_normalizer import normalize_payment
+
+import razorpay
 
 load_dotenv()
 # python, go inside .env and load the secrets.
@@ -15,74 +17,21 @@ client = OpenAI(
     base_url="https://api.groq.com/openai/v1"
 )
 
-possible_failure_reasons = [
-    "incorrect_CVC",
-    "mismatched_card_number",
-    "expired_card",
-    "insufficient_funds",
-    "processing_error",
-    "bank_declined",
-]
+razorpay_client = razorpay.Client(
+    auth=(
+        os.getenv("TEST_API_KEY"),
+        os.getenv("TEST_KEY_SECRET")
+    )
+)
 
-possible_currency = ["USD", "INR", "MYR", "SGD"]
+payment_id = input("Enter Razorpay payment ID: ")
 
-possible_customer_tier = ["vip", "vvip", "free", "premium", "enterprise"]
+razorpay_payment = razorpay_client.payment.fetch(payment_id)
 
-possible_card_brand = [
-    "Visa",
-    "Mastercard",
-    "American Express",
-    "RuPay",
-    "Diners Club",
-    "Discover",
-    "Amex",
-]
+payment = normalize_payment(razorpay_payment)
 
-possible_payment_method_type = [
-    "Credit Card",
-    "Debit Card",
-    "UPI",
-    "Net Banking",
-    "Digital Wallet",
-    "EMI",
-    "Cardless EMI",
-    "Pay Later",
-    "Bank Transfer",
-    "QR Code",
-    "International Payments",
-    "Contactless / Tap & Pay",
-]
-
-is_subscription = [True, False]
-
-# payment = {
-#     "amount": random.randint(1000, 10000),
-#     "failure_reason": random.choice(possible_failure_reasons),
-#     "previous_attempts": random.randint(0, 2),
-#     "minutes_since_failure": random.randint(1, 5),
-#     "currency": random.choice(possible_currency),
-#     "customer_tier": random.choice(possible_customer_tier),
-#     "card_brand": random.choice(possible_card_brand),
-#     "payment_method": random.choice(possible_payment_method_type),
-#     "subscription": random.choice(is_subscription),
-#     "status": "failed",
-#     "payment_id": str(uuid.uuid4()),
-# }
-
-payment = {
-    "amount": 5000,
-    "failure_reason": "processing_error",
-    "previous_attempts": 0,
-    "minutes_since_failure": 3,
-    "currency": "INR",
-    "customer_tier": "premium",
-    "card_brand": "Visa",
-    "payment_method": "Credit Card",
-    "subscription": False,
-    "status": "failed",
-    "payment_id": str(uuid.uuid4())
-}
-
+print("\nPAYMENT FOR RECOVERY ENGINE:")
+print(payment)
 
 with open("recovery_history.json", "r") as file:
     recovery_history = json.load(file)
@@ -145,7 +94,8 @@ attempts, AI or technical details. Keep it under 100 words.
     print(customer_message)
 
 current_payment_history = [
-    event for event in recovery_history if event["payment_id"] == payment["payment_id"]
+    event 
+    for event in recovery_history if event["payment_id"] == payment["payment_id"]
 ]
 
 print("\nRECOVERY HISTORY")
