@@ -1,0 +1,68 @@
+[
+    {
+        "event_id": "evt_001",
+        "event_type": "payment_failed",
+        "customer": "customer_001",
+        "amount": 100,
+        "currency": "INR",
+        "failure_reason": "bank_declined",
+        "previous_attempts": 0,
+        "customer_tier": "free",
+        "subscription": false
+    },
+    {
+        "event_id": "evt_002",
+        "event_type": "payment_failed",
+        "customer": "customer_002",
+        "amount": 250,
+        "currency": "INR",
+        "failure_reason": "insufficient_funds",
+        "previous_attempts": 1,
+        "customer_tier": "free",
+        "subscription": true
+    },
+    {
+        "event_id": "evt_003",
+        "event_type": "payment_failed",
+        "customer": "customer_003",
+        "amount": 500,
+        "currency": "INR",
+        "failure_reason": "bank_declined",
+        "previous_attempts": 3,
+        "customer_tier": "vip",
+        "subscription": true
+    },
+    {
+        "event_id": "evt_004",
+        "event_type": "checkout_abandoned",
+        "customer": "customer_004",
+        "amount": 15000,
+        "currency": "INR"
+    },
+    {
+        "event_id": "evt_005",
+        "event_type": "checkout_abandoned",
+        "customer": "customer_005",
+        "amount": 8000,
+        "currency": "INR"
+    },
+    {
+        "event_id": "evt_006",
+        "event_type": "overdue_receivable",
+        "customer": "customer_006",
+        "amount": 40000,
+        "currency": "INR",
+        "due_date": "2026-08-20"
+    },
+    {
+        "event_id": "evt_007",
+        "event_type": "subscription_failed",
+        "customer": "customer_007",
+        "amount": 1200,
+        "currency": "INR",
+        "failure_reason": "insufficient_funds",
+        "previous_attempts": 1,
+        "customer_tier": "free",
+        "subscription": true
+    }
+]

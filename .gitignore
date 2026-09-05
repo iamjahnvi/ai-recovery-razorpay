@@ -1,0 +1,12 @@
+.env
+.venv/
+
+*.pyc
+
+.env
+.streamlit/
+processed_events.json
+
+recovery_history.json
+batch_results.json
+

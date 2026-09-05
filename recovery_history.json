@@ -1,16 +1,127 @@
 [
     {
-        "action": "retry",
-        "attempt": 0,
-        "payment_id": "7e76abce-e9eb-492c-bc98-cc627f5a3dae",
-        "reason": "Transient failure detected very recently \u2014 quick retry likely to succeed",
-        "result": "recovered"
+        "event_id": "evt_001",
+        "event_type": "payment_failed",
+        "amount": 100,
+        "revenue_at_risk": 40.0,
+        "decision": "retry",
+        "execution": "retry_pending"
     },
     {
-        "action": "retry",
-        "attempt": 0,
-        "payment_id": "547d0e48-c399-4378-a48e-4d98b5f05179",
-        "reason": "Transient failure detected very recently \u2014 quick retry likely to succeed",
-        "result": "recovered"
+        "event_id": "evt_002",
+        "event_type": "payment_failed",
+        "amount": 250,
+        "revenue_at_risk": 150.0,
+        "decision": "retry",
+        "execution": "retry_pending"
+    },
+    {
+        "event_id": "evt_003",
+        "event_type": "payment_failed",
+        "amount": 500,
+        "revenue_at_risk": 250.0,
+        "decision": "ask_customer",
+        "execution": "customer_action_required"
+    },
+    {
+        "event_id": "evt_004",
+        "event_type": "checkout_abandoned",
+        "amount": 15000,
+        "revenue_at_risk": 15000,
+        "decision": "send_reminder",
+        "execution": "reminder_scheduled"
+    },
+    {
+        "event_id": "evt_005",
+        "event_type": "checkout_abandoned",
+        "amount": 8000,
+        "revenue_at_risk": 8000,
+        "decision": "send_reminder",
+        "execution": "reminder_scheduled"
+    },
+    {
+        "event_id": "evt_006",
+        "event_type": "overdue_receivable",
+        "amount": 40000,
+        "revenue_at_risk": 40000,
+        "decision": "send_payment_reminder",
+        "execution": "reminder_scheduled"
+    },
+    {
+        "event_id": "evt_007",
+        "event_type": "subscription_failed",
+        "amount": 1200,
+        "revenue_at_risk": 720.0,
+        "decision": "retry",
+        "execution": "retry_pending"
+    },
+    {
+        "event_id": "evt_001",
+        "event_type": "payment_failed",
+        "amount": 100,
+        "revenue_at_risk": 40.0,
+        "decision": "retry",
+        "execution": "retry_pending"
+    },
+    {
+        "event_id": "evt_002",
+        "event_type": "payment_failed",
+        "amount": 250,
+        "revenue_at_risk": 150.0,
+        "decision": "retry",
+        "execution": "retry_pending"
+    },
+    {
+        "event_id": "evt_003",
+        "event_type": "payment_failed",
+        "amount": 500,
+        "revenue_at_risk": 250.0,
+        "decision": "ask_customer",
+        "execution": "customer_action_required"
+    },
+    {
+        "event_id": "evt_004",
+        "event_type": "checkout_abandoned",
+        "amount": 15000,
+        "revenue_at_risk": 15000,
+        "decision": "send_reminder",
+        "execution": "reminder_scheduled"
+    },
+    {
+        "event_id": "evt_005",
+        "event_type": "checkout_abandoned",
+        "amount": 8000,
+        "revenue_at_risk": 8000,
+        "decision": "send_reminder",
+        "execution": "reminder_scheduled"
+    },
+    {
+        "event_id": "evt_006",
+        "event_type": "overdue_receivable",
+        "amount": 40000,
+        "revenue_at_risk": 40000,
+        "decision": "send_payment_reminder",
+        "execution": "reminder_scheduled"
+    },
+    {
+        "event_id": "evt_007",
+        "event_type": "subscription_failed",
+        "amount": 1200,
+        "revenue_at_risk": 720.0,
+        "decision": "retry",
+        "execution": "retry_pending"
+    },
+    {
+        "event_id": "evt_WEBHOOK_TEST_002",
+        "payment_id": "pay_WEBHOOK_TEST_001",
+        "event_type": "payment_failed",
+        "amount": 100.0,
+        "currency": "INR",
+        "customer_tier": "vip",
+        "failure_reason": "bank_declined",
+        "revenue_at_risk": 50.0,
+        "recovery_probability": 0.5,
+        "decision": "ask_customer",
+        "execution": "customer_action_required"
     }
 ]

@@ -2,7 +2,7 @@
 
 from datetime import datetime, timezone
 
-def normalize_payment(razorpay_payment: dict) -> dict:
+def normalize_payment(razorpay_payment: dict, customer_profile: dict = None) -> dict:
 
     error_description = (
         razorpay_payment.get("error_description") or ""
@@ -61,8 +61,9 @@ def normalize_payment(razorpay_payment: dict) -> dict:
         "minutes_since_failure": minutes_since_failure,
 
         # Temporary until we get customer/subscription data
-        "customer_tier": "free",
-        "subscription": False,
+        "customer_tier": customer_profile.get("customer_tier", "free") if customer_profile else "free",
+        "subscription": customer_profile.get("subscription", False) if customer_profile else False,
+        "lifetime_value": customer_profile.get("lifetime_value", 0) if customer_profile else 0,
     }
 
     

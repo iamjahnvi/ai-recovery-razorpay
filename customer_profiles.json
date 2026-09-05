@@ -1,0 +1,7 @@
+{
+    "void@razorpay.com": {
+        "customer_tier": "vip",
+        "subscription": true,
+        "lifetime_value": 50000
+    }
+}
