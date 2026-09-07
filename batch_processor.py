@@ -37,7 +37,11 @@ def process_batch():
     with open("batch_events.json", "r") as file:
         events = json.load(file)
 
-    results = []
+    try:
+        with open(BATCH_RESULTS_FILE, "r") as file:
+            results = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError):
+            results = []
 
     for event in events:
 
@@ -146,8 +150,7 @@ def process_batch():
         mark_processed(event_id)
 
     # Save only newly processed results
-    if results:
-        save_batch_results(results)
+    save_batch_results(results)
 
     return results
 
